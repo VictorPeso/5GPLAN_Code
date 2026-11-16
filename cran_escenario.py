@@ -1,36 +1,34 @@
 """
 cran_escenario.py
 Primera parte del proyecto C-RAN:
-  1) Carga estaciones_raw.csv y agrupa estaciones por emplazamiento (mismas coordenadas).
+  1) Carga estaciones_tec.csv, filtra por operador y tecnologia y agrupa por emplazamiento (RRH).
   2) Inyecta RRHs sinteticos (numero variable, distancia minima entre RRHs).
   3) Elige K BBU pools con farthest-first k-center (K variable) y compara varios K.
   4) Guarda CSV/JSON, grafica distancia maxima vs K y genera un mapa Folium.
  
 Dependencias: numpy, pandas, matplotlib, folium
 """
+import unicodedata
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from config import cargar_parametros
 
-
-# ---------------- Parametros ----------------
-CSV_ENTRADA = "estaciones_tec.csv"  # tras anadir_tecnologias.py usar "estaciones_tec.csv"
-# Filtro por tecnologia (solo si CSV_ENTRADA es estaciones_tec.csv). Etiquetas posibles:
-# "4G", "5G", "4G+5G", "ambigua" (solo 900/2100 MHz), "sin_datos". None = no filtrar.
-FILTRO_ETIQUETAS = ["4G", "5G", "4G+5G"]            # p. ej. ["4G", "5G", "4G+5G"]
-N_SINTETICOS = 50            # numero de RRHs sinteticos a inyectar (0 = ninguno)
-MIN_DIST_RRH_KM = 0.1        # distancia minima entre dos RRHs al colocar sinteticos
-MAX_DIST_A_REAL_KM = 1.0     # radio en el que se cuentan estaciones reales vecinas
-MIN_VECINOS_REALES = 3       # un sintetico necesita al menos tantas reales dentro de ese radio
-                             # (evita colocarlos en el mar o en zonas vacias; si no se
-                             # consiguen todos, bajar MIN_VECINOS_REALES o subir el radio)
-K_LISTA = [2, 3, 4, 5, 6, 8, 10, 15, 20]   # valores de K a comparar
-K_ELEGIDO = 10                # K usado para el mapa y la asignacion final
-SEMILLA = 42
-METODO_POOLS = "k-means"    # "k-center": minimiza la distancia MAXIMA (reparte pools por el territorio)
-                             # "k-means" : minimiza la distancia MEDIA (mas pools donde hay mas RRHs)
-SEMILLA = 42
-DECIMALES_AGRUPAR = 5        # ~1 m: estaciones con igual coordenada = mismo emplazamiento
+# ---------------- Parametros (se leen de config.py; se pueden sobrescribir con --nombre=valor) ----------------
+cfg = cargar_parametros()
+CSV_ENTRADA = cfg.csv_estaciones
+OPERADORES = cfg.operadores
+FILTRO_ETIQUETAS = cfg.filtro_etiquetas
+N_SINTETICOS = cfg.n_sinteticos
+MIN_DIST_RRH_KM = cfg.min_dist_rrh_km
+MAX_DIST_A_REAL_KM = cfg.max_dist_a_real_km
+MIN_VECINOS_REALES = cfg.min_vecinos_reales
+K_LISTA = cfg.k_lista
+K_ELEGIDO = cfg.k_elegido
+SEMILLA = cfg.semilla
+METODO_POOLS = cfg.metodo_pools
+DECIMALES_AGRUPAR = cfg.decimales_agrupar
 
 
 # ---------------- Utilidades geometricas ----------------
@@ -147,23 +145,33 @@ def inyectar_sinteticos(P_real, n, min_dist, bbox, rng, max_dist_real=None, min_
     return np.array(nuevos) if nuevos else np.empty((0, 2))
 
 
-# ---------------- Programa principal ----------------
-def main():
-    rng = np.random.default_rng(SEMILLA)
+def normalizar(texto):
+    """Minusculas y sin tildes, para comparar nombres de operador."""
+    t = unicodedata.normalize("NFKD", str(texto))
+    return "".join(c for c in t if not unicodedata.combining(c)).lower()
 
-    # 1) Cargar y agrupar por emplazamiento
+
+def cargar_sitios():
+    """Lee las estaciones, filtra por operador y tecnologia y las agrupa por emplazamiento (RRH reales)."""
     df = pd.read_csv(CSV_ENTRADA, dtype={"site_id": str})
     df = df.dropna(subset=["lon", "lat"])
+    if OPERADORES:
+        claves = [normalizar(o) for o in OPERADORES]
+        antes = len(df)
+        df = df[df["operador"].map(normalizar).map(lambda x: any(c in x for c in claves))]
+        print(f"Filtro operadores {OPERADORES}: {antes} -> {len(df)} estaciones")
     if FILTRO_ETIQUETAS is not None:
         if "etiqueta" not in df.columns:
             raise SystemExit(
                 f"{CSV_ENTRADA} no tiene la columna 'etiqueta'. Ejecuta primero "
-                "anadir_tecnologias.py y pon CSV_ENTRADA = 'estaciones_tec.csv', "
-                "o deja FILTRO_ETIQUETAS = None."
+                "anadir_tecnologias.py y pon csv_estaciones='estaciones_tec.csv' en config.py, "
+                "o deja filtro_etiquetas=None."
             )
         antes = len(df)
         df = df[df["etiqueta"].isin(FILTRO_ETIQUETAS)]
-        print(f"Filtro {FILTRO_ETIQUETAS}: {antes} -> {len(df)} estaciones")
+        print(f"Filtro tecnologia {FILTRO_ETIQUETAS}: {antes} -> {len(df)} estaciones")
+    if df.empty:
+        raise SystemExit("Ninguna estacion cumple los filtros (operadores / tecnologia).")
     df["clave"] = df["lon"].round(DECIMALES_AGRUPAR).astype(str) + "," + df["lat"].round(DECIMALES_AGRUPAR).astype(str)
     sitios = (
         df.groupby("clave")
@@ -174,13 +182,20 @@ def main():
     )
     sitios["tipo"] = "real"
     print(f"Estaciones: {len(df)}  ->  emplazamientos (RRH reales): {len(sitios)}")
+    return sitios
 
-    lon0, lat0 = sitios["lon"].mean(), sitios["lat"].mean()
+
+def construir_rrh(sitios, n_sinteticos, rng, lon0=None, lat0=None):
+    """Anade n_sinteticos RRH sinteticas a los sitios reales.
+
+    Devuelve (rrh, P, P_real, lon0, lat0): tabla de RRH (reales primero), sus coordenadas en km,
+    las de las reales y el origen de la proyeccion.
+    """
+    if lon0 is None:
+        lon0, lat0 = sitios["lon"].mean(), sitios["lat"].mean()
     P_real = a_km(sitios["lon"], sitios["lat"], lon0, lat0)
-
-    # 2) RRHs sinteticos dentro del bounding box del escenario
     bbox = (P_real[:, 0].min(), P_real[:, 0].max(), P_real[:, 1].min(), P_real[:, 1].max())
-    P_sint = inyectar_sinteticos(P_real, N_SINTETICOS, MIN_DIST_RRH_KM, bbox, rng,
+    P_sint = inyectar_sinteticos(P_real, n_sinteticos, MIN_DIST_RRH_KM, bbox, rng,
                                  max_dist_real=MAX_DIST_A_REAL_KM,
                                  min_vecinos=MIN_VECINOS_REALES)
     sint = pd.DataFrame({
@@ -188,10 +203,20 @@ def main():
         "lat": lat0 + P_sint[:, 1] / 111.32 if len(P_sint) else [],
         "n_estaciones": 0, "operadores": "", "tipo": "sintetico",
     })
-    rrh = pd.concat([sitios.drop(columns=[]), sint], ignore_index=True)
+    rrh = pd.concat([sitios, sint], ignore_index=True)
     rrh.insert(0, "rrh_id", range(len(rrh)))
     P = np.vstack([P_real, P_sint]) if len(P_sint) else P_real
-    print(f"RRHs totales: {len(rrh)} ({len(sitios)} reales + {len(P_sint)} sinteticos)")
+    print(f"RRHs totales: {len(rrh)} ({len(sitios)} reales + {len(P_sint)} sinteticas)")
+    return rrh, P, P_real, lon0, lat0
+
+
+# ---------------- Programa principal ----------------
+def main():
+    rng = np.random.default_rng(SEMILLA)
+
+    # 1-2) RRH reales (filtradas por operador y tecnologia) + RRH sinteticas
+    sitios = cargar_sitios()
+    rrh, P, P_real, lon0, lat0 = construir_rrh(sitios, N_SINTETICOS, rng)
 
     # Solo los RRH reales pueden ser BBU pool (los reales van primero en P)
     candidatos = np.arange(len(P)) < len(P_real)
