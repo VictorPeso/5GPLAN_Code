@@ -1,0 +1,52 @@
+@startuml algorithm_v5_redistribute_first
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam roundCorner 18
+skinparam ArrowColor #555555
+skinparam ArrowThickness 2
+skinparam ArrowFontSize 12
+skinparam DefaultFontSize 13
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam BackgroundColor #FFFFFF
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BorderColor #3C3C3C
+  BorderThickness 1.5
+}
+skinparam database {
+  BorderColor #3C3C3C
+}
+skinparam cloud {
+  BorderColor #3C3C3C
+}
+skinparam hexagon {
+  BorderColor #3C3C3C
+}
+title Task 3 evolution - v5 - Redistribute with the existing BBUs first
+
+database "**Scenario + pools**\n964 RRHs\ntraffic per RRH" as S #DCEBFA
+hexagon "**Hard constraint**\nround trip <= 60 us\n(<= 6 km)" as H #FFF3B0
+rectangle "**Distance only**" as A #E3F2E1
+hexagon "**Overloaded?**\nload > mean x 1.25" as D #FFF3B0
+rectangle "**Redistribute**\nA: to BBUs with spare capacity\nB: to neighbouring BBUs\nif the max load drops" as C #8FD694
+rectangle "**Balance traffic**" as B #E3F2E1
+rectangle "**Add a BBU**\n>= 2 km from other BBUs\n0.2 x distance weight" as E #E3F2E1
+cloud "**Result**\nfewer new BBUs\n(19 pools: none needed)" as R #E6D9F2
+rectangle "**Limit**\nperipheral pools cannot be relieved:\ntheir RRHs reach only their own BBU" as L #FFD1D1
+
+S -right-> H
+H -right-> A
+A -down-> B
+B -left-> C
+C -left-> D
+D -down-> E : yes
+D --> R : no
+E --> B : balance again
+R .right.> L
+
+legend bottom
+  <back:#DCEBFA>   </back> input / data     <back:#E3F2E1>   </back> processing step     <back:#FFF3B0>   </back> constraint / decision     <back:#E6D9F2>   </back> result     <back:#8FD694>   </back> new in this version     <back:#FFD1D1>   </back> limit found
+endlegend
+@enduml

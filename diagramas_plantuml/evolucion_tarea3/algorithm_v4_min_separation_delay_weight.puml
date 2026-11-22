@@ -1,0 +1,50 @@
+@startuml algorithm_v4_min_separation_delay_weight
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam roundCorner 18
+skinparam ArrowColor #555555
+skinparam ArrowThickness 2
+skinparam ArrowFontSize 12
+skinparam DefaultFontSize 13
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam BackgroundColor #FFFFFF
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BorderColor #3C3C3C
+  BorderThickness 1.5
+}
+skinparam database {
+  BorderColor #3C3C3C
+}
+skinparam cloud {
+  BorderColor #3C3C3C
+}
+skinparam hexagon {
+  BorderColor #3C3C3C
+}
+title Task 3 evolution - v4 - Minimum separation and delay weight
+
+database "**Scenario + pools**\n964 RRHs\ntraffic per RRH" as S #DCEBFA
+hexagon "**Hard constraint**\nround trip <= 60 us\n(<= 6 km)" as H #FFF3B0
+rectangle "**Distance only**" as A #E3F2E1
+rectangle "**Add a BBU**\nsite >= **2 km** from other BBUs\nscore = imbalance\n+ **0.2 x mean distance**" as E #8FD694
+hexagon "**Overloaded?**\nload > mean x 1.25" as D #FFF3B0
+rectangle "**Balance traffic**" as B #E3F2E1
+rectangle "**Limit**\nBBUs are added even if the\nexisting ones could take load" as L #FFD1D1
+cloud "**Result**\nnew BBUs spread out,\ndelay kept low" as R #E6D9F2
+
+S -right-> H
+H -right-> A
+A -down-> B
+B -left-> D
+D -left-> E : yes
+D -down-> R : no
+E -right-> B : balance again
+R .left.> L
+
+legend bottom
+  <back:#DCEBFA>   </back> input / data     <back:#E3F2E1>   </back> processing step     <back:#FFF3B0>   </back> constraint / decision     <back:#E6D9F2>   </back> result     <back:#8FD694>   </back> new in this version     <back:#FFD1D1>   </back> limit found
+endlegend
+@enduml

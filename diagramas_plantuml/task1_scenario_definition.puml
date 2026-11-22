@@ -1,0 +1,49 @@
+@startuml task1_scenario_definition
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam roundCorner 18
+skinparam ArrowColor #555555
+skinparam ArrowThickness 2
+skinparam ArrowFontSize 12
+skinparam DefaultFontSize 13
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam BackgroundColor #FFFFFF
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BorderColor #3C3C3C
+  BorderThickness 1.5
+}
+skinparam database {
+  BorderColor #3C3C3C
+}
+skinparam cloud {
+  BorderColor #3C3C3C
+}
+skinparam hexagon {
+  BorderColor #3C3C3C
+}
+title Task 1 - Scenario definition: where are the RRHs and the BBU pools?
+
+database "**Station file**\nestaciones_tec.csv" as F #DCEBFA
+rectangle "**1. Filter**\noperator: Telefonica\ntechnology: 4G, 5G, 4G+5G" as A #E3F2E1
+rectangle "**2. Group by site**\n1 site = 1 real RRH\n**914 real RRHs**" as B #E3F2E1
+rectangle "**4. Choose K BBU pools**\nalways on real RRH sites\nfarthest-first or k-means" as D #E3F2E1
+database "**Scenario**\n**964 RRHs**\n30 x 30 km area" as S #DCEBFA
+rectangle "**3. Add synthetic RRHs**\n+50 random points\nmin distance between RRHs\nmax distance to a real one" as C #E3F2E1
+hexagon "**5. Compare K**\nmax RRH-pool distance\nvs number of pools" as E #FFF3B0
+cloud "**Results**\nCSV / JSON\ndistance vs K plot\ninteractive map" as R #E6D9F2
+
+F -right-> A
+A -right-> B
+B -down-> C
+C -left-> S
+S -left-> D
+D -down-> E : choose K
+E -right-> R
+
+legend bottom
+  <back:#DCEBFA>   </back> input / data     <back:#E3F2E1>   </back> processing step     <back:#FFF3B0>   </back> constraint / decision     <back:#E6D9F2>   </back> result
+endlegend
+@enduml

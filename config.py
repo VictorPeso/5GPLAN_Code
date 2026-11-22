@@ -53,6 +53,24 @@ PARAMETROS = {
     "k_lista": [2, 3, 4, 5, 6, 8, 10, 15, 20],   # valores de K a comparar
     "k_elegido": 10,                          # K usado para el mapa y la asignacion final
 
+    # ---------- Fase 2: load balancing (fase2_load_balancing.py) ----------
+    "f2_retardo_rt_max_us": 60.0,             # retardo maximo de ida y vuelta usado para las listas de pools posibles
+    "f2_pools": {"few": 10, "normal": 14, "many": 19},   # numero de pools de los 3 casos a comparar
+    "f2_caso_principal": "normal",            # caso con el que se dibujan las figuras detalladas
+    "f2_hora": "auto",                        # hora del balanceo (0-23); "auto" = hora de maxima carga total
+    "f2_barrido_retardos_us": [40, 60, 80, 100, 150],   # retardos para ver cuanto ayuda un limite mas holgado
+    "f2_horas_figura": [8, 15, 21],           # horas para la carga por pool antes del algoritmo (fig 1a)
+    "f2_perfiles_csv": None,                  # CSV propio con columnas hour,residential,office,mixed (MBph); None = tesis
+    "f2_variabilidad_carga": 0.0,             # desv. tipica (lognormal) de un factor aleatorio por RRH; 0 = sin variacion
+    "f2_capacidad_tarjeta_mbph": 5000.0,      # SUPUESTO: capacidad de una tarjeta de procesado (para contar tarjetas)
+    "f2_umbral_sobrecarga": 0.25,             # un pool esta sobrecargado si supera la media en mas de este %
+    "f2_max_bbus_extra": 2,                   # maximo de BBU nuevas que se prueban en el refuerzo
+    "f2_umbral_holgura": 0.0,                 # una BBU tiene holgura (puede recibir RRH) si su carga < media*(1-este %); 0 = por debajo de la media
+    "f2_mejora_minima": 0.15,                 # mejora relativa del desequilibrio por debajo de la cual se prueban alternativas
+    "f2_candidatos_max": 150,                 # sitios de RRH real que se prueban como BBU nueva (los de mas carga a aliviar)
+    "f2_dist_min_bbu_km": 2.0,                # separacion minima entre dos BBU (km); evita apilar BBU nuevas junto a otras
+    "f2_peso_retardo": 0.2,                   # peso de la distancia media (retardo) frente al equilibrio al elegir el sitio
+
     # ---------- General ----------
     "semilla": 42,
     "dir_figuras": "Figuras",                 # carpeta (junto al script) donde se guardan las figuras

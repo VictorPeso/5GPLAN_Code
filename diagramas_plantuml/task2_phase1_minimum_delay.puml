@@ -1,0 +1,51 @@
+@startuml task2_phase1_minimum_delay
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam roundCorner 18
+skinparam ArrowColor #555555
+skinparam ArrowThickness 2
+skinparam ArrowFontSize 12
+skinparam DefaultFontSize 13
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam BackgroundColor #FFFFFF
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BorderColor #3C3C3C
+  BorderThickness 1.5
+}
+skinparam database {
+  BorderColor #3C3C3C
+}
+skinparam cloud {
+  BorderColor #3C3C3C
+}
+skinparam hexagon {
+  BorderColor #3C3C3C
+}
+title Task 2 - Phase 1: minimise the delay
+
+database "**Scenario (Task 1)**\n964 RRHs\ntraffic type per RRH" as S #DCEBFA
+rectangle "**1. Candidate pools**\n19 positions\non real RRH sites" as A #E3F2E1
+hexagon "**Delay limit**\nround trip 10 us/km\n**<= 60 us = 6 km**" as H #FFF3B0
+rectangle "**4. Greedy coverage**\nminimum pools that\nserve all the RRHs" as D #E3F2E1
+rectangle "**3. Classify RRHs**\nA: only option\nB: closest, has others\nC: can reach, not closest" as C #E3F2E1
+rectangle "**2. Reachable pools**\nof every RRH\noptimal = the closest" as B #E3F2E1
+rectangle "**5. Prune pools**\nremove one by one while\nall RRHs stay served" as E #E3F2E1
+cloud "**Result**\n**14 pools** are enough\nat 60 us\n(5 of 19 are redundant)" as R #E6D9F2
+rectangle "Robustness\nother numbers of\nsynthetic RRHs" as X #E3F2E1
+
+S -right-> A
+A -right-> H
+H -down-> B
+B -left-> C
+C -left-> D
+D -down-> E
+E -right-> R
+R .right.> X : check
+
+legend bottom
+  <back:#DCEBFA>   </back> input / data     <back:#E3F2E1>   </back> processing step     <back:#FFF3B0>   </back> constraint / decision     <back:#E6D9F2>   </back> result
+endlegend
+@enduml

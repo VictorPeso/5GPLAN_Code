@@ -1,0 +1,22 @@
+caso,paso,accion,pools,decision,detalle,cv_carga,max_sobre_media,carga_max_mbph,carga_media_mbph,dist_media_km
+few,0,Balanceo por trafico (base),10,-,,0.8129618543459822,2.5303844128488677,120130.0,47475.0,3.419308261234969
+few,1,"Anadir BBU en sitio RRH 397 (41.3891, 2.1401)",11,aceptada,"pools sobrecargados: 3 (2.53x), 19 (2.53x); mejora del desequilibrio 21%",0.6404266732781076,1.9509215376513953,84200.0,43159.09090909091,3.377716691393404
+few,2,"Anadir BBU en sitio RRH 664 (41.3781, 2.1755)",12,mejora pequena,"pools sobrecargados: 3 (1.95x), 19 (1.94x), N1 (1.95x); mejora del desequilibrio 14%",0.5489079839038765,1.7199368088467615,68045.0,39562.5,3.3814527451664866
+few,2,Alternativa: mover BBU sobrecargada,12,descartada,mover la BBU N1 al sitio RRH 407: desequilibrio 0.551 (mejora total 14%),0.5507094164647401,1.7303001579778832,68455.0,39562.5,3.3694269791738423
+few,2,Alternativa: repartir RRH hacia los pools de alrededor,12,aceptada,desequilibrio 0.504 (mejora total 21%),0.5042406259709131,1.5902685624012638,62915.0,39562.5,3.3324890354499326
+few,2,Resultado del paso,12,aceptada,"desequilibrio 0.640 -> 0.504 (mejora total 21%); carga maxima 84,200 -> 62,915 MBph",0.5042406259709131,1.5902685624012638,62915.0,39562.5,3.3324890354499326
+normal,0,Balanceo por trafico (base),14,-,,0.4871617783322262,1.5403686150605582,52235.0,33910.71428571428,3.5869621276703376
+normal,1,"Anadir BBU en sitio RRH 202 (41.3507, 2.1036)",15,mejora pequena,"pools sobrecargados: 1 (1.54x), 3 (1.54x), 7 (1.53x), 16 (1.53x), 18 (1.54x), 19 (1.54x); mejora del desequilibrio 12%",0.42781279573138853,1.430647709320695,45280.0,31650.0,3.7032039749115633
+normal,1,Alternativa: mover BBU sobrecargada,15,aceptada,mover la BBU 3 al sitio RRH 758: desequilibrio 0.422 (mejora total 13%),0.4224711922088641,1.4259083728278041,45130.0,31650.0,3.688338081778291
+normal,1,Alternativa: repartir RRH hacia los pools de alrededor,15,aceptada,desequilibrio 0.386 (mejora total 21%),0.3858728160342809,1.3197472353870459,41770.0,31650.0,3.574956517513055
+normal,1,Resultado del paso,15,aceptada,"desequilibrio 0.487 -> 0.386 (mejora total 21%); carga maxima 52,235 -> 41,770 MBph",0.3858728160342809,1.3197472353870459,41770.0,31650.0,3.574956517513055
+normal,2,"Anadir BBU en sitio RRH 198 (41.3850, 2.1020)",16,mejora pequena,"pools sobrecargados: 1 (1.31x), 2 (1.31x), 3 (1.31x), 6 (1.31x), 7 (1.32x), 16 (1.32x), 18 (1.31x), 19 (1.32x), N1 (1.31x); mejora del desequilibrio 7%",0.3588453376906938,1.2926382306477093,38355.0,29671.875,3.672314538294647
+normal,2,Alternativa: mover BBU sobrecargada,16,descartada,mover la BBU 19 al sitio RRH 299: desequilibrio 0.375 (mejora total 3%),0.3750916325686167,1.3509426013691417,40085.0,29671.875,3.7667508591720695
+normal,2,Alternativa: repartir RRH hacia los pools de alrededor,16,descartada,desequilibrio 0.359 (mejora total 7%),0.3588453376906938,1.2926382306477093,38355.0,29671.875,3.672314538294647
+normal,2,Resultado del paso,16,aceptada,"desequilibrio 0.386 -> 0.359 (mejora total 7%); carga maxima 41,770 -> 38,355 MBph",0.3588453376906938,1.2926382306477093,38355.0,29671.875,3.672314538294647
+many,0,Balanceo por trafico (base),19,-,,0.43663350341311113,1.39073196419168,34750.0,24986.842105263157,3.894683660800137
+many,1,"Anadir BBU en sitio RRH 862 (41.4345, 2.2292)",20,mejora pequena,"pools sobrecargados: 1 (1.38x), 3 (1.38x), 5 (1.38x), 7 (1.38x), 11 (1.39x), 15 (1.30x), 16 (1.38x), 17 (1.39x), 18 (1.38x), 19 (1.38x); mejora del desequilibrio 8%",0.4003082140407969,1.3192206424433912,31315.0,23737.5,3.917326906563837
+many,1,Alternativa: mover BBU sobrecargada,20,aceptada,mover la BBU 17 al sitio RRH 848: desequilibrio 0.381 (mejora total 13%),0.38126637434311605,1.3074249605055293,31035.0,23737.5,3.839430399042071
+many,1,Alternativa: repartir RRH hacia los pools de alrededor,20,aceptada,desequilibrio 0.371 (mejora total 15%),0.37141807958432516,1.2872037914691943,30555.0,23737.5,3.8102277709807737
+many,1,Resultado del paso,20,aceptada,"desequilibrio 0.437 -> 0.371 (mejora total 15%); carga maxima 34,750 -> 30,555 MBph",0.37141807958432516,1.2872037914691943,30555.0,23737.5,3.8102277709807737
+many,2,"Anadir BBU en sitio RRH 440 (41.3215, 2.1484)",21,aceptada,"pools sobrecargados: 1 (1.27x), 2 (1.27x), 3 (1.28x), 5 (1.28x), 7 (1.29x), 11 (1.28x), 15 (1.27x), 16 (1.28x), 18 (1.29x), 19 (1.28x), N1 (1.28x); mejora del desequilibrio 21%",0.29310955941852873,1.2005055292259084,27140.0,22607.14285714286,3.78521489439866

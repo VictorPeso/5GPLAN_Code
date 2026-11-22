@@ -1,0 +1,43 @@
+@startuml algorithm_v1_distance_only
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam roundCorner 18
+skinparam ArrowColor #555555
+skinparam ArrowThickness 2
+skinparam ArrowFontSize 12
+skinparam DefaultFontSize 13
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam BackgroundColor #FFFFFF
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BorderColor #3C3C3C
+  BorderThickness 1.5
+}
+skinparam database {
+  BorderColor #3C3C3C
+}
+skinparam cloud {
+  BorderColor #3C3C3C
+}
+skinparam hexagon {
+  BorderColor #3C3C3C
+}
+title Task 3 evolution - v1 - Distance only
+
+database "**Scenario + pools**\n964 RRHs\ntraffic per RRH" as S #DCEBFA
+hexagon "**Hard constraint**\nround trip <= 60 us\n(<= 6 km)" as H #FFF3B0
+rectangle "**Assign**\nclosest reachable pool" as A #8FD694
+rectangle "**Limit**\ntraffic is ignored:\nsome pools get 2-3x the mean" as L #FFD1D1
+cloud "**Result**\nlowest delay\nbut very uneven loads" as R #E6D9F2
+
+S -right-> H
+H -right-> A
+A -down-> R
+R .left.> L
+
+legend bottom
+  <back:#DCEBFA>   </back> input / data     <back:#E3F2E1>   </back> processing step     <back:#FFF3B0>   </back> constraint / decision     <back:#E6D9F2>   </back> result     <back:#8FD694>   </back> new in this version     <back:#FFD1D1>   </back> limit found
+endlegend
+@enduml

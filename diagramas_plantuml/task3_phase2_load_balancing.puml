@@ -1,0 +1,50 @@
+@startuml task3_phase2_load_balancing
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam roundCorner 18
+skinparam ArrowColor #555555
+skinparam ArrowThickness 2
+skinparam ArrowFontSize 12
+skinparam DefaultFontSize 13
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam BackgroundColor #FFFFFF
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BorderColor #3C3C3C
+  BorderThickness 1.5
+}
+skinparam database {
+  BorderColor #3C3C3C
+}
+skinparam cloud {
+  BorderColor #3C3C3C
+}
+skinparam hexagon {
+  BorderColor #3C3C3C
+}
+title Task 3 - Phase 2: balance the traffic of the BBU pools without breaking the delay
+
+database "**Inputs**\n964 RRHs, pools of the case\n(10 / 14 / 19)\ntraffic per RRH (24 h profiles,\npeak hour 15:00)" as I #DCEBFA
+hexagon "**Hard constraint**\nround trip <= 60 us\n(RRH-BBU <= 6 km)" as H #FFF3B0
+rectangle "**1. Distance only**\nclosest reachable pool\n(baseline)" as A #E3F2E1
+hexagon "**Still overloaded?**\nload > mean x 1.25" as D #FFF3B0
+rectangle "**3. Redistribute**\noverloaded pools give RRHs\nto BBUs with spare capacity" as C #E3F2E1
+rectangle "**2. Balance traffic**\nleast-loaded\nreachable pool" as B #E3F2E1
+rectangle "**4. Add a BBU**\nreal RRH site, >= 2 km from\nother BBUs\nscore = imbalance + 0.2 x distance" as E #E3F2E1
+cloud "**Results**\nimbalance, max / mean\ndistance and delay\nnumber of pools" as R #E6D9F2
+
+I -right-> H
+H -right-> A
+A -down-> B
+B -left-> C
+C -left-> D
+D -down-> E : yes
+D --> R : no
+E --> B : balance again\nkeep if it improves
+
+legend bottom
+  <back:#DCEBFA>   </back> input / data     <back:#E3F2E1>   </back> processing step     <back:#FFF3B0>   </back> constraint / decision     <back:#E6D9F2>   </back> result
+endlegend
+@enduml
